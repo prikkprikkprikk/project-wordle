@@ -15,7 +15,6 @@ function Game() {
     return newAnswer;
   });
   const [guesses, setGuesses] = React.useState(() => {
-    console.info("Emptying game board");
     return getEmptyGameBoard(answer);
   });
   const [numberOfGuesses, setNumberOfGuesses] = React.useState(0);
@@ -23,25 +22,18 @@ function Game() {
   const [alphabet, setAlphabet] = React.useState({});
 
   function getEmptyGameBoard(newAnswer) {
-    console.info("In emptyGameBoard, new answer is:", newAnswer);
     return range(0, NUM_OF_GUESSES_ALLOWED).map(() => {
-      console.info("Creating empty guess. New answer is:", newAnswer);
       return new GuessData("", newAnswer);
     });
   }
 
   function resetGame() {
-    console.info("In resetGame()");
-    const newNumberOfGuesses = 0;
-    setNumberOfGuesses(newNumberOfGuesses);
-    console.info("Number of guesses reset to: ", newNumberOfGuesses);
     const newAnswer = sample(WORDS);
-    console.info("Setting new answer to:", newAnswer);
     setAnswer(newAnswer);
+    setNumberOfGuesses(0);
     setGuesses(getEmptyGameBoard(newAnswer));
     setAlphabet({});
-    console.info("Game board after reset:", guesses);
-    console.info("Number of guesses:", newNumberOfGuesses);
+    setWinStatus("playing");
   }
 
   function addGuess(guess) {

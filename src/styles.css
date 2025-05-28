@@ -173,6 +173,22 @@ h1 {
   animation: slideUp 750ms cubic-bezier(0, 0.72, 0.24, 1.02);
   border-radius: 4px 4px 0px 0px;
   will-change: transform;
+
+  & button {
+    background: lightgray;
+    border: 1px solid darkslategray;
+    border-radius: 4px;
+    margin-top: .8em;
+    padding: .4em .8em;
+    cursor: pointer;
+    color: black;
+    transition: all .15s ease-in-out;
+
+    &:hover {
+      background: whitesmoke;
+      transform: translateY(-2px);
+    }
+  }
 }
 
 .happy.banner {
