@@ -1,55 +1,88 @@
-/**
- * Thanks to Github user dylano for supplying a more-accurate
- * solving algorithm!
- */
+export class GuessData {
+  answer = []; // The correct answer to check against
+  checkedAnswerLetters = [false, false, false, false, false];
+  guessedLetters = []; // The letters guessed by the player
+  statuses = []; // Whether each guessed letter is correct, misplaced or incorrect
+  isCorrect = false;
 
-export function checkGuess(guess, answer) {
-  // This constant is a placeholder that indicates we've successfully
-  // dealt with this character (it's correct, or misplaced).
-  const SOLVED_CHAR = '✓';
-
-  if (!guess) {
-    return null;
+  constructor(guess, answer) {
+    if (guess.length === 0) {
+      this.guessedLetters = ["", "", "", "", ""];
+    } else {
+      this.guessedLetters = guess.split("");
+    }
+    this.answer = answer.split("");
+    this.check();
   }
 
-  const guessChars = guess.toUpperCase().split('');
-  const answerChars = answer.split('');
-
-  const result = [];
-
-  // Step 1: Look for correct letters.
-  for (let i = 0; i < guessChars.length; i++) {
-    if (guessChars[i] === answerChars[i]) {
-      result[i] = {
-        letter: guessChars[i],
-        status: 'correct',
-      };
-      answerChars[i] = SOLVED_CHAR;
-      guessChars[i] = SOLVED_CHAR;
-    }
+  length() {
+    return this.guessedLetters.length;
   }
 
-  // Step 2: look for misplaced letters. If it's not misplaced,
-  // it must be incorrect.
-  for (let i = 0; i < guessChars.length; i++) {
-    if (guessChars[i] === SOLVED_CHAR) {
-      continue;
-    }
-
-    let status = 'incorrect';
-    const misplacedIndex = answerChars.findIndex(
-      (char) => char === guessChars[i]
-    );
-    if (misplacedIndex >= 0) {
-      status = 'misplaced';
-      answerChars[misplacedIndex] = SOLVED_CHAR;
-    }
-
-    result[i] = {
-      letter: guessChars[i],
-      status,
-    };
+  letters() {
+    return this.guessedLetters;
   }
 
-  return result;
+  check() {
+    // We first check if letters are empty or correct
+    this.guessedLetters.forEach((letter, index) => {
+      // First, if the letter is empty, no guess has been made yet.
+      if (letter === "") {
+        this.statuses[index] = "unguessed";
+        return;
+      }
+      // If letter is correct in the correct place, we mark the answer letter as such
+      // to avoid checking against it again later.
+      if (letter === this.answer[index]) {
+        this.statuses[index] = "correct";
+        this.checkedAnswerLetters[index] = true;
+        return;
+      }
+    });
+
+    // If no guess has been made yet, we don't need to continue checking.
+    if (this.guess === "") {
+      return;
+    }
+
+    // Go through each guessed letter that is not correct.
+    this.guessedLetters.forEach((guessedLetter, guessedLetterIndex) => {
+      // Skip letters that already have been labelled as correct.
+      if (this.statuses[guessedLetterIndex] === "correct") {
+        return;
+      }
+      // Check against each answer letter.
+      this.answer.forEach((answerLetter, answerLetterIndex) => {
+        // Skip checking if we've already found it to be misplaced.
+        if (this.statuses[guessedLetterIndex] === "misplaced") {
+          return;
+        }
+        // Skip already "taken" answer letters.
+        if (this.checkedAnswerLetters[answerLetterIndex]) {
+          return;
+        }
+        if (guessedLetter === answerLetter) {
+          this.statuses[guessedLetterIndex] = "misplaced";
+          // Mark this answer letter as "taken"
+          this.checkedAnswerLetters[answerLetterIndex] = true;
+        }
+      });
+
+      if (
+        this.statuses[guessedLetterIndex] !== "unguessed" &&
+        this.statuses[guessedLetterIndex] !== "correct" &&
+        this.statuses[guessedLetterIndex] !== "misplaced"
+      ) {
+        this.statuses[guessedLetterIndex] = "incorrect";
+      }
+    });
+
+    this.isCorrect = this.statuses.reduce((accumulator, status) => {
+      return accumulator && status === "correct";
+    }, true);
+  }
+
+  statusAtIndex(index) {
+    return this.statuses[index];
+  }
 }
